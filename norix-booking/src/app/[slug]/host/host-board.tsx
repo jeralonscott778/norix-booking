@@ -9,6 +9,7 @@ import { addDays, cedi, dateKeyIn, fromKey, timeIn, todayIn } from "@/lib/format
 type Props = { business: Business; areas: Area[]; initialTables: DiningTable[]; userEmail: string };
 
 const STATUS: Record<Reservation["status"], [string, string]> = {
+  held: ["", "Awaiting payment"], pending: ["warn", "Needs confirming"], declined: ["bad", "Declined"],
   booked: ["info", "Booked"], seated: ["warn", "Seated"], finished: ["", "Finished"], no_show: ["bad", "No-show"],
   cancelled: ["", "Cancelled"], waitlist: ["warn", "Waitlist"], request: ["warn", "Group request"],
 };
@@ -96,8 +97,8 @@ export default function HostBoard({ business: b, areas, initialTables, userEmail
 
   const tableById = Object.fromEntries(tables.map((t) => [t.id, t]));
   const areaById = Object.fromEntries(areas.map((a) => [a.id, a]));
-  const active = res.filter((r) => r.status !== "cancelled");
-  const up = active.filter((r) => r.status === "booked");
+  const active = res.filter((r) => r.status !== "cancelled" && r.status !== "declined");
+  const up = active.filter((r) => r.status === "booked" || r.status === "pending");
   const seated = active.filter((r) => r.status === "seated");
   const wait = active.filter((r) => r.status === "waitlist" || r.status === "request");
   const done = active.filter((r) => r.status === "finished" || r.status === "no_show");
@@ -127,6 +128,7 @@ export default function HostBoard({ business: b, areas, initialTables, userEmail
           </div>
         </div>
         <div className="host-acts">
+          {r.status === "pending" && <button className="host-mini primary" disabled={busyId === r.id} onClick={() => setStatus(r, "booked")}>Confirm</button>}
           {r.status === "booked" && <>
             <button className="host-mini primary" disabled={busyId === r.id} onClick={() => setStatus(r, "seated")}>Seat</button>
             <button className="host-mini" disabled={busyId === r.id} onClick={() => setStatus(r, "no_show")}>No-show</button>

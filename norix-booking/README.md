@@ -10,6 +10,10 @@ Reservations for businesses in Ghana. Next.js 15 + TypeScript + Tailwind, Supaba
 | `/kozo?embed=1` | Same, without the page heading, for embedding |
 | `/kozo/3d` | Guests look around the room in 3D and book an exact table |
 | `/kozo/host` | Staff sign in to see and manage reservations live |
+| `/kozo/birthday` (any booking link) | Opens straight to one booking type |
+| `/dashboard` | Restaurant dashboard (reservations, guests, messages, automations, booking links, seat routing, hours, seating, apps, settings) |
+| `/manage/<token>` | Guests change or cancel their own booking |
+| `/pay/return` | Where Paystack sends guests after paying |
 
 Every business is a row in the `businesses` table. A new client = a new slug (for example `/serene-spa`), no new code.
 
@@ -56,6 +60,7 @@ The Supabase Edge Function `notify` sends them after each booking. It reads thes
 | `WHATSAPP_TEMPLATE` (optional) | Approved template name, used when a plain message isn't allowed |
 | `ARKESEL_API_KEY`, `SMS_SENDER` | SMS via arkesel.com |
 | `OWNER_WHATSAPP` (optional) | Restaurant's number, gets an alert for every booking |
+| `PAYSTACK_SECRET_KEY` | Paystack deposits (MoMo + card). Then switch on in Dashboard → Apps. Webhook URL: `https://<project>.supabase.co/functions/v1/payments` |
 
 Any channel without its keys is skipped; bookings still work.
 

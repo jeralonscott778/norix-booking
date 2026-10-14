@@ -25,7 +25,7 @@ export default async function SeatViewPage({ params, searchParams }: Props) {
   return (
     <div style={themeVars(data.business.theme ?? {}) as React.CSSProperties}>
       {href && <link rel="stylesheet" href={href} />}
-      <SeatView business={data.business} areas={data.areas} tables={data.tables} initialDay={day} initialParty={party} />
+      <SeatView business={data.business} areas={data.areas} tables={data.tables} initialDay={day} initialParty={party} closedDates={data.closedDates} />
     </div>
   );
 }

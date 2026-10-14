@@ -9,17 +9,17 @@ import type { Area, BookingResult, Business, DiningTable, Slot } from "@/lib/typ
 import { addDays, fmtSlot, fromKey, isDayOpen, longDate, normalisePhone, todayIn } from "@/lib/format";
 import { bookTable } from "../actions";
 
-type Props = { business: Business; areas: Area[]; tables: DiningTable[]; initialDay?: string; initialParty: number };
+type Props = { business: Business; areas: Area[]; tables: DiningTable[]; initialDay?: string; initialParty: number; closedDates?: string[] };
 type Free = { table_id: string; free: boolean; fits: boolean };
 type Marker = { t: DiningTable; ring: THREE.Mesh; hit: THREE.Mesh };
 
-export default function SeatView({ business: b, areas, tables, initialDay, initialParty }: Props) {
+export default function SeatView({ business: b, areas, tables, initialDay, initialParty, closedDates = [] }: Props) {
   const today = useMemo(() => todayIn(b.timezone || "Africa/Accra"), [b.timezone]);
   const openDays = useMemo(() => {
     const out: string[] = []; let k = today;
-    for (let i = 0; i < 21 && out.length < 14; i++) { if (isDayOpen(b, k, today)) out.push(k); k = addDays(k, 1); }
+    for (let i = 0; i < 21 && out.length < 14; i++) { if (isDayOpen(b, k, today, closedDates)) out.push(k); k = addDays(k, 1); }
     return out;
-  }, [b, today]);
+  }, [b, today, closedDates]);
   const placed = useMemo(() => tables.filter((t) => typeof t.pos?.x === "number" && typeof t.pos?.z === "number"), [tables]);
 
   const [party, setParty] = useState(initialParty);
@@ -287,7 +287,7 @@ export default function SeatView({ business: b, areas, tables, initialDay, initi
       <div className="sv-glass sv-card">
         {mode === "done" && result ? (
           <>
-            <h2>Table {result.table} is yours</h2>
+            <h2>{result.status === "pending" ? `Table ${result.table} requested` : `Table ${result.table} is yours`}</h2>
             <p>{longDate(day)}, {time && fmtSlot(time)} · {result.party} {result.party === 1 ? "guest" : "guests"} · {result.area}</p>
             <p>Reference <b style={{ color: "var(--b-accent)", letterSpacing: ".06em" }}>{result.ref}</b>. Your confirmation is on its way to WhatsApp.</p>
             <div className="sv-row"><button className="sv-btn ghost" onClick={() => { setMode("look"); setSel(null); setResult(null); api.current?.fly(null); }}>Look around again</button></div>

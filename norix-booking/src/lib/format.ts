@@ -23,7 +23,7 @@ export const cedi = (n: number) => `GH₵ ${Number(n).toLocaleString("en-GH", { 
 export const timeIn = (iso: string, tz: string) =>
   new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "numeric", minute: "2-digit", hour12: true })
     .format(new Date(iso))
-    .replace(" ", "");
+    .replace(/\s/g, "");
 export const dateKeyIn = (iso: string, tz: string) =>
   new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(new Date(iso));
 
@@ -75,9 +75,20 @@ export function fontHref(t: Theme) {
   );
 }
 
-export function isDayOpen(b: Business, k: string, today: string) {
+export function isDayOpen(b: Business, k: string, today: string, closedDates: string[] = []) {
   const s = b.settings;
   if (k < today) return false;
   if (k > addDays(today, s.book_ahead_days ?? 60)) return false;
-  return !(s.closed_days ?? []).includes(fromKey(k).getDay());
+  if (closedDates.includes(k)) return false;
+  const dow = fromKey(k).getDay();
+  if (s.weekly) return (s.weekly[String(dow)] ?? []).length > 0;
+  return !(s.closed_days ?? []).includes(dow);
+}
+
+/** Seatings for a weekday, from weekly hours or the default list */
+export function sittingsFor(b: Business, k: string) {
+  const s = b.settings;
+  const dow = fromKey(k).getDay();
+  if (s.weekly) return s.weekly[String(dow)] ?? [];
+  return (s.closed_days ?? []).includes(dow) ? [] : s.sittings ?? [];
 }

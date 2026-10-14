@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { loadBusiness } from "@/lib/data";
-import { fontHref, themeVars } from "@/lib/format";
-import Booker from "./booker";
+import BookingView from "./booking-view";
 
 export const dynamic = "force-dynamic";
 
@@ -17,24 +15,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BookingPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { embed } = await searchParams;
-  const data = await loadBusiness(slug);
-  if (!data) notFound();
-  const { business, areas, tables } = data;
-  const vars = themeVars(business.theme ?? {});
-  const href = fontHref(business.theme ?? {});
-  const isEmbed = embed === "1";
-  const pageBg = (business.theme?.mode ?? "dark") === "dark" ? "#0b0907" : "#f4f2ee";
-
-  return (
-    <div className={`bk-page${isEmbed ? " embed" : ""}`} style={{ ...vars, ["--b-page" as string]: pageBg } as React.CSSProperties}>
-      {href && <link rel="stylesheet" href={href} />}
-      {!isEmbed && (
-        <div className="bk-site">
-          <small>{business.tagline || business.address || "Reservations"}</small>
-          <b>Reserve a table at {business.name}</b>
-        </div>
-      )}
-      <Booker business={business} areas={areas} has3d={tables.some((t) => t.pos?.x !== undefined)} />
-    </div>
-  );
+  return <BookingView slug={slug} embed={embed} />;
 }

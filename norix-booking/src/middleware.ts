@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Keeps staff logins fresh. Only runs on the host screens.
+// Keeps staff logins fresh. Only runs on the staff pages.
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
@@ -25,5 +25,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/:slug/host/:path*"],
+  matcher: ["/:slug/host/:path*", "/dashboard/:path*"],
 };
